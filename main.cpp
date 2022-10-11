@@ -6,9 +6,10 @@
 /* You can just copy the headers from glm, or go through the install */
 #include <iostream>
 
+#include "Renderer.hpp"
+#include "glm/matrix.hpp"
 
 int main() {
-
     Renderer renderer;
     renderer.initialize();
     renderer.start_looping();

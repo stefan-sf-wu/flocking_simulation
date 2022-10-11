@@ -6,7 +6,7 @@
 #include <cstdlib>
 #include <ctime>
 
-#include "Common.h"
+#include "Common.hpp"
 
 
 class RandGenerator
@@ -15,6 +15,7 @@ private:
     std::vector<float> random_num_vec_;
     unsigned int offset_;
 
+private:
     inline unsigned int get_offset() 
     {
         if(++offset_ == RAND_VEC_LEN) {
@@ -24,7 +25,10 @@ private:
     }
     
 public:
-    RandGenerator();
+    RandGenerator() 
+    {
+        reset();
+    };
 
     void reset() 
     {
@@ -46,8 +50,6 @@ public:
         return mean + std_deviation * random_num_vec_.at(get_offset());
     }
 
-    ~RandGenerator();
-
 #ifdef ENABLE_LOGGER
     void logger() 
     {
@@ -58,13 +60,8 @@ public:
     }
 #endif
 
+    ~RandGenerator() {};
 };
-
-RandGenerator::RandGenerator() 
-{
-    reset();
-}
-RandGenerator::~RandGenerator() {}
 
 
 #endif // RAND_GENERATOR_H_

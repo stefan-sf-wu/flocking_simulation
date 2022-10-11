@@ -5,16 +5,15 @@
 #include <vector>
 
 #include <glad/glad.h>
+
 #include <GLFW/glfw3.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "Common.h"
-#include "Math.h"
-#include "Particle.h"
-#include "ParticleManager_MP.h"
-#include "Timer.h"
+#include "Common.hpp"
+#include "Timer.hpp"
 
 const char* vertexShaderSource = "#version 330 core\n"
 "layout (location = 0) in vec3 aPos;\n"
@@ -48,14 +47,19 @@ float camX = camradius;
 float camY = 0.0;
 float camZ = 0.0;
 
-// 
-Vec generator_origin = {0.0, 0.0, 1.5};
-float generator_speed = 0.01;
+float cursor_pos_x = 0.0;
+float cursor_pos_y = 0.0;
 
 // Allow window resizing
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
 }
+
+void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
+    cursor_pos_x = xpos;
+    cursor_pos_y = ypos;
+}
+
 
 // Keyboard input: JKIL for camera motion (also escape to close window)
 void processInput(GLFWwindow* window) {
@@ -93,23 +97,8 @@ void processInput(GLFWwindow* window) {
         camZ = camradius * sin(glm::radians(phi));
     }
 
-    // A / D / W / S KEY TO MOVE GENERATOR ORIGIN OVER XY-PLAIN
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        generator_origin = vec_add(generator_origin, {0, -generator_speed, 0});
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        generator_origin = vec_add(generator_origin, {0, generator_speed, 0});
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        generator_origin = vec_add(generator_origin, {-generator_speed, 0, 0});
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        generator_origin = vec_add(generator_origin, {generator_speed, 0, 0});
-    }
-
+    // double xpos, ypos;
+    // glfwGetCursorPos(window, &xpos, &ypos);
 }
 
 // This is a really bad "ball" - just an octahedron
@@ -177,7 +166,6 @@ private:
     glm::mat4* modelMatrices;
     unsigned int plain_buffer, ballbuffer, VAO, plain_buffer_2;
 
-    ParticleManager particle_manager;
     Timer timer;
 
     void draw() 
@@ -217,7 +205,7 @@ private:
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
-        for(int i = 0; i < PARTICLE_NUMBER; i++)
+        for(int i = 0; i < BOID_NUMBER; i++)
         {
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelMatrices[i]));
             glDrawArrays(GL_TRIANGLES, 0, 24);
@@ -231,10 +219,8 @@ public:
 
     void initialize()
     {
-        modelMatrices = new glm::mat4[PARTICLE_NUMBER];
+        modelMatrices = new glm::mat4[BOID_NUMBER];
         update_position_from_manager();
-        particle_manager.add_plain(plain);
-        particle_manager.add_plain(plain_2);
 
         glfwInit();
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -260,6 +246,7 @@ public:
 
         // register a callback function on the window that gets called each time the window is resized.
         glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+        glfwSetCursorPosCallback(window, cursor_position_callback);
 
         // Enable depth buffering, backface culling
         glEnable(GL_DEPTH_TEST);
@@ -324,15 +311,12 @@ public:
                 update_position_from_manager();
                 draw();
             }
-            
-            particle_manager.kill_particle();
-            particle_manager.generate_particle(transform_gl2phy(generator_origin));
-            particle_manager.compute_new_state();
-            
 
             glfwPollEvents();
             
             timer.update_simulation_time();
+
+            std::cout << "cursor pos: " << cursor_pos_x <<", "<< cursor_pos_y << std::endl;
         }
         shut_down();
     }
@@ -340,23 +324,18 @@ public:
 
     void update_position_from_manager()
     {
-        Vec pos;
+        glm::vec3 pos;
 
-        for(int i = 0; i < PARTICLE_NUMBER; i++)
+        for(int i = 0; i < BOID_NUMBER; i++)
         {
-            if(particle_manager.activated_particle_[i] == true)
-            {
-                pos = particle_manager.particle_list_[i]->get_transformed_postion_for_renderer();
-            }
-            else
-            {
-                pos = {10.0, 10.0, 10.0};
-            }
+            pos[0] = i *2 / BOID_NUMBER;
+            pos[1] = i *2 / BOID_NUMBER;
+            pos[2] = - timer.get_simluation_time() / 10;
 
             model = glm::mat4(1.0f);
-            model = glm::translate(model, (glm::vec3(pos.x,
-                                                     pos.y, 
-                                                     pos.z)));
+            model = glm::translate(model, (glm::vec3(pos[0],
+                                                     pos[1], 
+                                                     pos[2])));
             modelMatrices[i] = model;
         }
 
@@ -378,7 +357,6 @@ public:
 Renderer::Renderer() 
 {
     timer.reset();
-    particle_manager.reset(&timer);
 }
 
 Renderer::~Renderer() {}

@@ -9,7 +9,7 @@
  */ 
 #define EDGE_SIZE 100         
 #define PARTICLE_MASS 1.0   
-#define PARTICLE_NUMBER 150000
+#define BOID_NUMBER 25
 
 /**
  * PARTICLE GENERATOR PARAMS
@@ -17,13 +17,14 @@
 #define RAND_VEC_LEN 9973
 #define INIT_SPEED_MEAN 10.0
 #define INIT_SPEED_STD 5.0
-#define GENERATION_RATE 2500.0    // per sec
-#define LIFE_SPAN (PARTICLE_NUMBER / GENERATION_RATE + 1)         // sec
 
-enum struct GENERATOR_TYPE 
-{
-    OMNI, DIRECTED, DISK, TRIANGLE, SPHERE
-};
+/**
+ * FLOCKING ACCELERATION
+*/
+#define AVOIDANCE_SCALAR 0.5
+#define VELOCITY_MATCHING_SCALAR 0.5
+#define CENTERING_SCALAR 0.5
+
 
 /**
  * CRONO
@@ -41,26 +42,21 @@ enum struct GENERATOR_TYPE
 #include <vector>
 #include <iostream>
 
-#include "Math.h"
+#include <glm/glm.hpp>
 
 /**
  * FORCE
  */ 
-
-enum struct ACCELERATION 
-{
-    GRAVITY, AIR_RESISTANCE
-};
 
 
 const double k_airres_coef = 0.05;
 const double k_friction_coef = 0.20;
 const double k_simplified_friction_coef = 0.2;
 const double k_restitution_coef = 0.6;
-const struct Vec k_gravity = {0, 0, -15};
+const glm::vec3 k_gravity = {0, 0, -15};
 
 // const struct Vec k_wind_velocity = {0.0, 0.0, 0.0};
-const struct Vec k_wind_velocity = {0.2, -0.2, 0};
+const glm::vec3 k_wind_velocity = {0.2, -0.2, 0};
 
 
 

@@ -128,31 +128,31 @@ public:
             */ 
             acc_avoidance = acc_velocity_matching = acc_centering = {0, 0, 0};
 
-            // #pragma omp parallel for\
-            //     default(none)\
-            //     shared(i, boids_, acc_avoidance, acc_velocity_matching, acc_centering)\
-            //     private(j, dist_ij, vec_ij, unit_vec_ij, dist_dir_weight, my_acc_avoidance, my_acc_velocity_matching, my_acc_centering)
+            #pragma omp parallel for\
+                default(none)\
+                shared(i, boids_, acc_avoidance, acc_velocity_matching, acc_centering)\
+                private(j, dist_ij, vec_ij, unit_vec_ij, dist_dir_weight, my_acc_avoidance, my_acc_velocity_matching, my_acc_centering)
             for(j = 0; j < BOID_NUMBER; j++)
             {
                 if(i == j) continue;
                 /**
                  * TODO: add contribution of particle j to i's total force
                 */
-                std::cout << "boids_[i]->position[0]"; print_vec(boids_[i]->position[0]);
-                std::cout << "boids_[j]->position[0]"; print_vec(boids_[j]->position[0]);
+                // std::cout << "boids_[i]->position[0]"; print_vec(boids_[i]->position[0]);
+                // std::cout << "boids_[j]->position[0]"; print_vec(boids_[j]->position[0]);
 
                 dist_ij     = glm::distance(boids_[i]->position[0], boids_[j]->position[0]);
                 vec_ij      = (boids_[j]->position[0] - boids_[i]->position[0]);
                 unit_vec_ij = vec_ij / dist_ij;
 
-                std::cout << "dist_ij: "<<dist_ij<< std::endl;
-                std::cout << "vec_ij: ";    print_vec(vec_ij);
-                std::cout << "unit_vec_ij: "; print_vec(vec_ij);
+                // std::cout << "dist_ij: "<<dist_ij<< std::endl;
+                // std::cout << "vec_ij: ";    print_vec(vec_ij);
+                // std::cout << "unit_vec_ij: "; print_vec(vec_ij);
 
 
                 dist_dir_weight = compute_direction_weight(boids_[i]->velocity[0], unit_vec_ij) * compute_distance_weight(dist_ij);
-                std::cout << "dir_weight: " <<  compute_direction_weight(boids_[i]->velocity[0], unit_vec_ij) << std::endl;
-                std::cout << "dist_weight: " << compute_distance_weight(dist_ij)<<std::endl;
+                // std::cout << "dir_weight: " <<  compute_direction_weight(boids_[i]->velocity[0], unit_vec_ij) << std::endl;
+                // std::cout << "dist_weight: " << compute_distance_weight(dist_ij)<<std::endl;
 
                 my_acc_avoidance = dist_dir_weight * compute_aviodance(dist_ij, unit_vec_ij);
                 my_acc_centering = dist_dir_weight * compute_centering(dist_ij, unit_vec_ij);
@@ -172,14 +172,6 @@ public:
                     #pragma omp atomic update
                     acc_velocity_matching[k] += my_acc_velocity_matching[k]; 
                 }
-
-
-                // acc_avoidance += my_acc_avoidance;
-                
-                // #pragma omp atomic update
-                // acc_centering += my_acc_centering;
-                // #pragma omp atomic update
-                // acc_velocity_matching += 
             }
             
             /**

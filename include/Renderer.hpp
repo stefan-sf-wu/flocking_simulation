@@ -25,7 +25,7 @@ const char* vertexShaderSource = "#version 330 core\n"
 "out vec3 ourColor;\n"
 "void main()\n"
 "{\n"
-"   gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
+"   gl_Position = projection * view * model * vec4(aPos, 0.5);\n"
 "   ourColor = aColor;\n"
 "}\0";
 
@@ -41,7 +41,7 @@ const char* fragmentShaderSource = "#version 330 core\n"
 // View parameters
 float theta = 0.0;
 float phi = 0.0;
-float camradius = 5.0;
+float camradius = 10.0;
 float cameraspeed = 0.5;
 
 float camX = camradius;
@@ -60,7 +60,6 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
     cursor_pos_x = xpos;
     cursor_pos_y = ypos;
 }
-
 
 // Keyboard input: JKIL for camera motion (also escape to close window)
 void processInput(GLFWwindow* window) {
@@ -99,8 +98,8 @@ void processInput(GLFWwindow* window) {
     }
 }
 
-// This is a really bad "ball" - just an octahedron
-float br = 0.05; // ball radius
+
+float br = 0.03; // ball radius
 float ball[] = {
     // positions   // colors
      br,  0,  0,   1.0f, 1.0f, 1.0f, // triangle 1
@@ -128,97 +127,77 @@ float ball[] = {
      br,  0,  0,   1.0f, 1.0f, 1.0f,
       0,  0,-br,   1.0f, 1.0f, 1.0f,
 };
-
-float plain[] = {
-    // positions    // colors
-    1,  -1,  0,     1.0f, 0.5f, 0.0f, 
-    0.5, 0.2,  -1,      1.0f, 0.5f, 0.0f,
-    -1.3,  -1, 0.5,      1.0f, 0.5f, 0.0f
+float box[] = {
+    // positions         // colors
+     1.0f, -1.0f, -1.0f,  0.0f, 0.0f, 1.0f, // bottom
+     1.0f,  1.0f, -1.0f,  0.0f, 0.0f, 1.0f,
+    -1.0f,  1.0f, -1.0f,  0.0f, 0.0f, 1.0f,
+    -1.0f,  1.0f, -1.0f,  0.0f, 0.0f, 1.0f,
+    -1.0f, -1.0f, -1.0f,  0.0f, 0.0f, 1.0f,
+     1.0f, -1.0f, -1.0f,  0.0f, 0.0f, 1.0f,
+     1.0f,  1.0f,  1.0f,  0.0f, 1.0f, 1.0f, // top
+     1.0f, -1.0f,  1.0f,  0.0f, 1.0f, 1.0f,
+    -1.0f,  1.0f,  1.0f,  0.0f, 1.0f, 1.0f,
+     1.0f, -1.0f,  1.0f,  0.0f, 1.0f, 1.0f,
+    -1.0f, -1.0f,  1.0f,  0.0f, 1.0f, 1.0f,
+    -1.0f,  1.0f,  1.0f,  0.0f, 1.0f, 1.0f,
+     1.0f, -1.0f, -1.0f,  1.0f, 0.0f, 1.0f, // left
+    -1.0f, -1.0f,  1.0f,  1.0f, 0.0f, 1.0f,
+     1.0f, -1.0f,  1.0f,  1.0f, 0.0f, 1.0f,
+    -1.0f, -1.0f, -1.0f,  1.0f, 0.0f, 1.0f,
+    -1.0f, -1.0f,  1.0f,  1.0f, 0.0f, 1.0f,
+     1.0f, -1.0f, -1.0f,  1.0f, 0.0f, 1.0f,
+     1.0f,  1.0f,  1.0f,  0.0f, 1.0f, 0.0f, // right
+    -1.0f,  1.0f,  1.0f,  0.0f, 1.0f, 0.0f,
+    -1.0f,  1.0f, -1.0f,  0.0f, 1.0f, 0.0f,
+     1.0f,  1.0f, -1.0f,  0.0f, 1.0f, 0.0f,
+     1.0f,  1.0f,  1.0f,  0.0f, 1.0f, 0.0f,
+    -1.0f,  1.0f, -1.0f,  0.0f, 1.0f, 0.0f,
+    -1.0f,  1.0f,  1.0f,  1.0f, 0.0f, 0.0f, // back
+    -1.0f, -1.0f,  1.0f,  1.0f, 0.0f, 0.0f,
+    -1.0f,  1.0f, -1.0f,  1.0f, 0.0f, 0.0f,
+    -1.0f, -1.0f,  1.0f,  1.0f, 0.0f, 0.0f,
+    -1.0f, -1.0f, -1.0f,  1.0f, 0.0f, 0.0f,
+    -1.0f,  1.0f, -1.0f,  1.0f, 0.0f, 0.0f,
+     1.0f, -1.0f,  1.0f,  1.0f, 1.0f, 0.0f, // front
+     1.0f,  1.0f,  1.0f,  1.0f, 1.0f, 0.0f,
+     1.0f, -1.0f, -1.0f,  1.0f, 1.0f, 0.0f,
+     1.0f,  1.0f, -1.0f,  1.0f, 1.0f, 0.0f,
+     1.0f, -1.0f, -1.0f,  1.0f, 1.0f, 0.0f,
+     1.0f,  1.0f,  1.0f,  1.0f, 1.0f, 0.0f
 };
-
-float plain_2[] = {
-    // positions    // colors
-
-    0.5,  -1,  -1,    1.0f, 0.25f, 0.25f, 
-    -1.3,  -0.5, -1.5,  1.0f, 0.25f, 0.25f,
-    -0.5,  0.3,  -0.5,     1.0f, 0.25f, 0.25f
-};
-
     
 class Renderer
 {
 private:
     GLFWwindow* window;
-    unsigned int shaderProgram;
-    unsigned int fragmentShader;
-    unsigned int vertexShader;
+    GLuint shaderProgram;
+    GLuint fragmentShader;
+    GLuint vertexShader;
 
-    unsigned int modelLoc;
-    unsigned int viewLoc;
-    unsigned int projectionLoc;
+    GLuint modelLoc;
+    GLuint viewLoc;
+    GLuint projectionLoc;
 
     glm::mat4 projection;
     glm::mat4 model;
     glm::mat4 view;
 
     glm::mat4* modelMatrices;
-    unsigned int plain_buffer, ballbuffer, VAO, plain_buffer_2;
+    GLuint VAO;
+    GLuint ballbuffer;
+    GLuint boxbuffer;
 
     Timer timer;
     FlockManager flock_manager;
     std::vector<Boid*> boids_ptr;
 
-    void draw() 
-    {
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        // Set view matrix
-        view = glm::lookAt(glm::vec3(camX, camY, camZ), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 1.0));
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-
-        // render and draw the plain
-        glBindBuffer(GL_ARRAY_BUFFER, plain_buffer);
-        // position attribute
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
-        // color attribute
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-        // draw the plain (no model transform needed)
-        model = glm::mat4(1.0f);
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        // render and draw the plain_2
-        glBindBuffer(GL_ARRAY_BUFFER, plain_buffer_2);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-        model = glm::mat4(1.0f);
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        // render the ball
-        glBindBuffer(GL_ARRAY_BUFFER, ballbuffer);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-        for(int i = 0; i < BOID_NUMBER; i++)
-        {
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelMatrices[i]));
-            glDrawArrays(GL_TRIANGLES, 0, 24);
-        }
-        
-        glfwSwapBuffers(window);
-    }
-
 public:
-    Renderer();
+    Renderer() {};
 
     void initialize()
     {
+        timer.reset();
         flock_manager.reset();
         modelMatrices = new glm::mat4[BOID_NUMBER];
         update_position_from_manager();
@@ -275,13 +254,9 @@ public:
         glGenVertexArrays(1, &VAO);
         glBindVertexArray(VAO);
 
-        glGenBuffers(1, &plain_buffer);
-        glBindBuffer(GL_ARRAY_BUFFER, plain_buffer);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(plain), plain, GL_STATIC_DRAW);
-
-        glGenBuffers(1, &plain_buffer_2);
-        glBindBuffer(GL_ARRAY_BUFFER, plain_buffer_2);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(plain_2), plain_2, GL_STATIC_DRAW);
+        glGenBuffers(1, &boxbuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, boxbuffer);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(box), box, GL_STATIC_DRAW);
 
         glGenBuffers(1, &ballbuffer);
         glBindBuffer(GL_ARRAY_BUFFER, ballbuffer);
@@ -305,6 +280,7 @@ public:
         while(!glfwWindowShouldClose(window) && !timer.is_time_to_stop())
         {
             processInput(window);
+            glfwPollEvents();
 
             if (timer.is_time_to_draw()) 
             {
@@ -314,12 +290,43 @@ public:
             }
 
             flock_manager.compute_acceleration();
-
-            glfwPollEvents();
-            
             timer.update_simulation_time();
         }
-        shut_down();
+        delete_GLBuffers();
+        glfwTerminate();
+    }
+
+    void draw() 
+    {
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // Set view matrix
+        view = glm::lookAt(glm::vec3(camX, camY, camZ), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 1.0));
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+
+        // render the box
+        glBindBuffer(GL_ARRAY_BUFFER, boxbuffer);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+        model = glm::mat4(1.0f);
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        // render boids
+        glBindBuffer(GL_ARRAY_BUFFER, ballbuffer);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+        for(int i = 0; i < BOID_NUMBER; i++)
+        {
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelMatrices[i]));
+            glDrawArrays(GL_TRIANGLES, 0, 24);
+        }
+        
+        glfwSwapBuffers(window);
     }
 
 
@@ -332,29 +339,19 @@ public:
             model = glm::mat4(1.0f);
             model = glm::translate(model, transform_phy2gl(boids_ptr[i]->position[0]));
             modelMatrices[i] = model;
-
-            print_vec(transform_phy2gl(boids_ptr[i]->position[0]));
         }
     }
 
-    void shut_down()
+    void delete_GLBuffers()
     {
         glDeleteVertexArrays(1, &VAO);
-        glDeleteBuffers(1, &plain_buffer);
-        glDeleteBuffers(1, &plain_buffer_2);
+        glDeleteBuffers(1, &boxbuffer);
         glDeleteBuffers(1, &ballbuffer);
         glDeleteProgram(shaderProgram);
     }
 
-    ~Renderer();
+    ~Renderer() {};
 };
-
-Renderer::Renderer() 
-{
-    timer.reset();
-}
-
-Renderer::~Renderer() {}
 
 
 

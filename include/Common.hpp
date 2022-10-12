@@ -2,14 +2,14 @@
 #define COMMON_H_
 
 #define PROJ_NAME "PARTICLE SYSTEM"
-#define ENABLE_LOGGER true
+#define ENABLE_LOGGER false
 
 /**
  * OBJECT PARAMS
  */ 
-#define EDGE_SIZE 256         
+#define EDGE_SIZE 1024         
 #define PARTICLE_MASS 1.0   
-#define BOID_NUMBER 5
+#define BOID_NUMBER 50
 
 /**
  * PARTICLE GENERATOR PARAMS
@@ -29,7 +29,7 @@
 /**
  * CRONO
  */
-#define TIMESTEP 0.02            // sec
+#define TIMESTEP 0.01            // sec
 #define MAX_DISPLAY_TIME 3000     // sec
 
 /**
@@ -44,12 +44,6 @@
 
 #include <glm/glm.hpp>
 
-
-inline void print_vec(glm::vec3 v)
-{
-    std::cout << "(" << v[0] << ", "<<v[1]<<", "<<v[2]<<")\n";
-}
-
 inline glm::vec3 transform_phy2gl(glm::vec3 v) {
     return {
         (v[0] * 2 / EDGE_SIZE) - 1,
@@ -58,15 +52,20 @@ inline glm::vec3 transform_phy2gl(glm::vec3 v) {
     };
 }
 
-const double k_airres_coef = 0.05;
-const double k_friction_coef = 0.20;
-const double k_simplified_friction_coef = 0.2;
-const double k_restitution_coef = 0.6;
-const glm::vec3 k_gravity = {0, 0, -15};
+inline glm::vec3 transform_gl2phy(glm::vec3 v) {
+    return {
+        (v[0] + 1) * (EDGE_SIZE / 2),
+        (v[1] + 1) * (EDGE_SIZE / 2),
+        (v[2] + 1) * (EDGE_SIZE / 2),
+    };
+}
 
-// const struct Vec k_wind_velocity = {0.0, 0.0, 0.0};
-const glm::vec3 k_wind_velocity = {0.2, -0.2, 0};
-
+#if ENABLE_LOGGER
+void print_vec(glm::vec3 v)
+{
+    std::cout << "(" << v[0] << ", "<<v[1]<<", "<<v[2]<<")\n";
+}
+#endif
 
 
 #endif // COMMON_H_

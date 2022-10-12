@@ -1,12 +1,17 @@
 #ifndef RAND_GENERATOR_H_
 #define RAND_GENERATOR_H_
 
-#include <iostream>
 #include <vector>
 #include <cstdlib>
 #include <ctime>
 
+#include <glm/glm.hpp>
+
 #include "Common.hpp"
+ 
+#if ENABLE_LOGGER
+#include <iostream>
+#endif
 
 
 class RandGenerator
@@ -49,6 +54,24 @@ public:
     {
         return mean + std_deviation * random_num_vec_.at(get_offset());
     }
+
+    glm::vec3 generate_random_vec(float u_min, float u_max)
+    {
+        return {
+            generate_uniform(u_min, u_max),
+            generate_uniform(u_min, u_max),
+            generate_uniform(u_min, u_max)
+        };
+    }
+
+    void generate_random_vec_arr(std::vector<glm::vec3> &vec_arr, float u_min, float u_max)
+    {
+        for(auto vec : vec_arr)
+        {
+            vec = generate_random_vec(u_min, u_max);
+        }
+    }
+
 
 #ifdef ENABLE_LOGGER
     void logger() 

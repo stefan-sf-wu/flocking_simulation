@@ -9,13 +9,16 @@
 #include <glm/geometric.hpp>    // Geometric functions
 
 #include "Common.hpp"
+#include "RandGenerator.hpp"
 
 #if ENABLE_LOGGER
 #include <iostream>
 #endif
 
-float d_a = 3, d_b = 5;
-float theta_a = M_PI * (90 / 360), theta_b = M_PI * (220 / 360);
+float d_a = (EDGE_SIZE * 1 / 4);
+float d_b = (EDGE_SIZE * 3 / 4);
+float theta_a = (M_PI * 90 / 360);
+float theta_b = (M_PI * 220 / 360);
 
 struct Boid
 {   
@@ -23,17 +26,20 @@ struct Boid
     std::vector<glm::vec3> velocity;    // For timestep T and timestep T+1
     // glm::vec3 position;
     // glm::vec3 velocity;
-    float birthday;
 
     Boid()
     : position({{0, 0, 0}, {0, 0, 0}})
-    , velocity({{0, 0, 0}, {0, 0, 0}})
-    , birthday(0) {}
+    , velocity({{0, 0, 0}, {0, 0, 0}}) {}
+    Boid(std::vector<glm::vec3> pos, std::vector<glm::vec3> vel)
+    : position(pos)
+    , velocity(vel) {}
 };
 
 class FlockManager
 {
 private: 
+    RandGenerator rand_generator;
+
     std::vector<Boid*> boids_;
     glm::vec2 global_target_;
 
@@ -48,9 +54,9 @@ private:
         return scalar * dist * unit_vec;
     }
 
-    inline glm::vec3 compute_velocity_matching(glm::vec3 &vec, float scalar=VELOCITY_MATCHING_SCALAR)
+    inline glm::vec3 compute_velocity_matching(glm::vec3 &velocity_i, glm::vec3 &velocity_j, float scalar=VELOCITY_MATCHING_SCALAR)
     {
-        return scalar * vec;
+        return scalar * (velocity_j - velocity_i);
     }
 
     inline float compute_distance_weight(float d)
@@ -87,23 +93,28 @@ public:
         for(int i = 0; i < BOID_NUMBER; i++)
         {
             boids_.push_back(new Boid());
+            boids_[i]->position[0] = rand_generator.generate_random_vec(0, EDGE_SIZE);
+            boids_[i]->velocity[0] = rand_generator.generate_random_vec(0, EDGE_SIZE);
         }
     }
 
-    void compute_flocking_acceleration(unsigned int idx_i, unsigned int idx_j)
+    void compute_acceleration()
     {
         float dist_ij;
         glm::vec3 vec_ij;
         glm::vec3 unit_vec_ij;
 
-        float dist_weight;
-        float dir_weight;
+        float dist_dir_weight;
 
-        glm::vec3 acc_steeing;
+        glm::vec3 acc_steering;
 
         glm::vec3 acc_avoidance;
         glm::vec3 acc_velocity_matching;
         glm::vec3 acc_centering;
+
+        glm::vec3 my_acc_avoidance;
+        glm::vec3 my_acc_velocity_matching;
+        glm::vec3 my_acc_centering;
 
 
         int i, j;
@@ -117,42 +128,82 @@ public:
             */ 
             acc_avoidance = acc_velocity_matching = acc_centering = {0, 0, 0};
 
-            #pragma omp parallel for\
-                shared(i, acc_avoidance, acc_velocity_matching, acc_centering)\
-                private(j, dist_ij, vec_ij, unit_vec_ij, dist_weight, dir_weight)
+            // #pragma omp parallel for\
+            //     default(none)\
+            //     shared(i, boids_, acc_avoidance, acc_velocity_matching, acc_centering)\
+            //     private(j, dist_ij, vec_ij, unit_vec_ij, dist_dir_weight, my_acc_avoidance, my_acc_velocity_matching, my_acc_centering)
+            for(j = 0; j < BOID_NUMBER; j++)
             {
-                for(j = 0; j < BOID_NUMBER; j++)
+                if(i == j) continue;
+                /**
+                 * TODO: add contribution of particle j to i's total force
+                */
+                std::cout << "boids_[i]->position[0]"; print_vec(boids_[i]->position[0]);
+                std::cout << "boids_[j]->position[0]"; print_vec(boids_[j]->position[0]);
+
+                dist_ij     = glm::distance(boids_[i]->position[0], boids_[j]->position[0]);
+                vec_ij      = (boids_[j]->position[0] - boids_[i]->position[0]);
+                unit_vec_ij = vec_ij / dist_ij;
+
+                std::cout << "dist_ij: "<<dist_ij<< std::endl;
+                std::cout << "vec_ij: ";    print_vec(vec_ij);
+                std::cout << "unit_vec_ij: "; print_vec(vec_ij);
+
+
+                dist_dir_weight = compute_direction_weight(boids_[i]->velocity[0], unit_vec_ij) * compute_distance_weight(dist_ij);
+                std::cout << "dir_weight: " <<  compute_direction_weight(boids_[i]->velocity[0], unit_vec_ij) << std::endl;
+                std::cout << "dist_weight: " << compute_distance_weight(dist_ij)<<std::endl;
+
+                my_acc_avoidance = dist_dir_weight * compute_aviodance(dist_ij, unit_vec_ij);
+                my_acc_centering = dist_dir_weight * compute_centering(dist_ij, unit_vec_ij);
+                my_acc_velocity_matching = dist_dir_weight * compute_velocity_matching(boids_[i]->velocity[0], boids_[j]->velocity[0]);
+
+                // std::cout << "avoidance/centering/velmatching\n";
+                // print_vec(compute_aviodance(dist_ij, unit_vec_ij));
+                // print_vec(compute_centering(dist_ij, unit_vec_ij));
+                // print_vec(compute_velocity_matching(boids_[i]->velocity[0], boids_[j]->velocity[0]));
+                
+                for(int k = 0; k < 3; k++)
                 {
-                    /**
-                     * TODO: add contribution of particle j to i's total force
-                    */
-                    dist_ij     = glm::distance(boids_[i]->position[0], boids_[j]->position[0]);
-                    vec_ij      = (boids_[j]->position[0] - boids_[i]->position[0]);
-                    unit_vec_ij = vec_ij / dist_ij;
-
-                    dir_weight  = compute_direction_weight(boids_[i]->velocity[0], unit_vec_ij);
-                    dist_weight = compute_distance_weight(dist_ij);
-
                     #pragma omp atomic update
-                    acc_avoidance += dist_weight * dir_weight * compute_aviodance(dist_ij, unit_vec_ij);
-                    
+                    acc_centering[k] += my_acc_centering[k];
                     #pragma omp atomic update
-                    acc_centering += dist_weight * dir_weight * compute_centering(dist_ij, unit_vec_ij);
-
+                    acc_avoidance[k] += my_acc_avoidance[k];
                     #pragma omp atomic update
-                    acc_velocity_matching += dist_weight * dir_weight * compute_velocity_matching(vec_ij);
+                    acc_velocity_matching[k] += my_acc_velocity_matching[k]; 
                 }
-            }   // omp parallel for
+
+
+                // acc_avoidance += my_acc_avoidance;
+                
+                // #pragma omp atomic update
+                // acc_centering += my_acc_centering;
+                // #pragma omp atomic update
+                // acc_velocity_matching += 
+            }
             
             /**
-             * TODO: integrate all of the forces on i
+             * TODO: integrate all of the forces on i: prioritize accelerations
             */
 
-
-
+            boids_[i]->velocity[1] = boids_[i]->velocity[0] + (float)TIMESTEP * (acc_avoidance + acc_centering + acc_velocity_matching);
+            boids_[i]->position[1] = boids_[i]->position[0] + (float)TIMESTEP * boids_[i]->velocity[0];
         }
 
+        #pragma omp parallel for\
+            shared(boids_)\
+            private(i)
+        for(i = 0; i < BOID_NUMBER; i++)
+        {
+            boids_[i]->velocity[0] = boids_[i]->velocity[1];
+            boids_[i]->position[0] = boids_[i]->position[1];
+        }
+        
+    }
 
+    std::vector<Boid*> &get_boids()
+    {
+        return boids_;
     }
     
     void get_cursor_position(float cursor_pos_x, float cursor_pos_y)

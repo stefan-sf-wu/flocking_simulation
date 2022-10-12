@@ -7,9 +7,9 @@
 /**
  * OBJECT PARAMS
  */ 
-#define EDGE_SIZE 100         
+#define EDGE_SIZE 256         
 #define PARTICLE_MASS 1.0   
-#define BOID_NUMBER 25
+#define BOID_NUMBER 5
 
 /**
  * PARTICLE GENERATOR PARAMS
@@ -21,9 +21,9 @@
 /**
  * FLOCKING ACCELERATION
 */
-#define AVOIDANCE_SCALAR 0.5
-#define VELOCITY_MATCHING_SCALAR 0.5
-#define CENTERING_SCALAR 0.5
+#define AVOIDANCE_SCALAR 0.2
+#define VELOCITY_MATCHING_SCALAR 0.2
+#define CENTERING_SCALAR 0.2
 
 
 /**
@@ -44,10 +44,19 @@
 
 #include <glm/glm.hpp>
 
-/**
- * FORCE
- */ 
 
+inline void print_vec(glm::vec3 v)
+{
+    std::cout << "(" << v[0] << ", "<<v[1]<<", "<<v[2]<<")\n";
+}
+
+inline glm::vec3 transform_phy2gl(glm::vec3 v) {
+    return {
+        (v[0] * 2 / EDGE_SIZE) - 1,
+        (v[1] * 2 / EDGE_SIZE) - 1,
+        (v[2] * 2 / EDGE_SIZE) - 1,
+    };
+}
 
 const double k_airres_coef = 0.05;
 const double k_friction_coef = 0.20;

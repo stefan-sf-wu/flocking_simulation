@@ -14,6 +14,7 @@
 
 #include "Common.hpp"
 #include "Timer.hpp"
+#include "FlockManager.hpp"
 
 const char* vertexShaderSource = "#version 330 core\n"
 "layout (location = 0) in vec3 aPos;\n"
@@ -96,13 +97,10 @@ void processInput(GLFWwindow* window) {
         camY = camradius * cos(glm::radians(phi)) * sin(glm::radians(theta));
         camZ = camradius * sin(glm::radians(phi));
     }
-
-    // double xpos, ypos;
-    // glfwGetCursorPos(window, &xpos, &ypos);
 }
 
 // This is a really bad "ball" - just an octahedron
-float br = 0.025; // ball radius
+float br = 0.05; // ball radius
 float ball[] = {
     // positions   // colors
      br,  0,  0,   1.0f, 1.0f, 1.0f, // triangle 1
@@ -167,6 +165,8 @@ private:
     unsigned int plain_buffer, ballbuffer, VAO, plain_buffer_2;
 
     Timer timer;
+    FlockManager flock_manager;
+    std::vector<Boid*> boids_ptr;
 
     void draw() 
     {
@@ -219,6 +219,7 @@ public:
 
     void initialize()
     {
+        flock_manager.reset();
         modelMatrices = new glm::mat4[BOID_NUMBER];
         update_position_from_manager();
 
@@ -312,11 +313,11 @@ public:
                 draw();
             }
 
+            flock_manager.compute_acceleration();
+
             glfwPollEvents();
             
             timer.update_simulation_time();
-
-            std::cout << "cursor pos: " << cursor_pos_x <<", "<< cursor_pos_y << std::endl;
         }
         shut_down();
     }
@@ -324,22 +325,16 @@ public:
 
     void update_position_from_manager()
     {
-        glm::vec3 pos;
+        boids_ptr = flock_manager.get_boids();
 
         for(int i = 0; i < BOID_NUMBER; i++)
         {
-            pos[0] = i *2 / BOID_NUMBER;
-            pos[1] = i *2 / BOID_NUMBER;
-            pos[2] = - timer.get_simluation_time() / 10;
-
             model = glm::mat4(1.0f);
-            model = glm::translate(model, (glm::vec3(pos[0],
-                                                     pos[1], 
-                                                     pos[2])));
+            model = glm::translate(model, transform_phy2gl(boids_ptr[i]->position[0]));
             modelMatrices[i] = model;
+
+            print_vec(transform_phy2gl(boids_ptr[i]->position[0]));
         }
-
-
     }
 
     void shut_down()

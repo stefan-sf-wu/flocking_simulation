@@ -9,7 +9,8 @@
  */ 
 #define EDGE_SIZE 512
 #define PARTICLE_MASS 1.0   
-#define BOID_NUMBER 12
+#define BOID_NUMBER 30
+#define NUM_LEADING_BOIDS 6 
 
 /**
  * PARTICLE GENERATOR PARAMS
@@ -21,10 +22,10 @@
 /**
  * FLOCKING 
 */
-#define AVOIDANCE_SCALAR 1e1
-#define VELOCITY_MATCHING_SCALAR 1
+#define AVOIDANCE_SCALAR 1e2
+#define VELOCITY_MATCHING_SCALAR 8e-2
 #define CENTERING_SCALAR 1e-2
-#define LEADING_BOIDS_PERCENTAGE 0.1
+
 
 /**
  * REPELLER 
@@ -49,6 +50,19 @@
 #include <iostream>
 
 #include <glm/glm.hpp>
+
+struct Boid
+{   
+    std::vector<glm::vec3> position;    // For timestep T and timestep T+1
+    std::vector<glm::vec3> velocity;    // For timestep T and timestep T+1
+
+    Boid()
+    : position({{0, 0, 0}, {0, 0, 0}})
+    , velocity({{0, 0, 0}, {0, 0, 0}}) {}
+    Boid(std::vector<glm::vec3> pos, std::vector<glm::vec3> vel)
+    : position(pos)
+    , velocity(vel) {}
+};
 
 inline glm::vec3 transform_phy2gl(glm::vec3 v) {
     return {

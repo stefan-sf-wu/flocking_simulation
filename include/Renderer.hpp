@@ -5,9 +5,7 @@
 #include <vector>
 
 #include <glad/glad.h>
-
 #include <GLFW/glfw3.h>
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -100,32 +98,59 @@ void processInput(GLFWwindow* window) {
 
 
 float br = 0.03; // ball radius
-float ball[] = {
+float ball_1[] = {
     // positions   // colors
-     br,  0,  0,   1.0f, 1.0f, 1.0f, // triangle 1
-      0, br,  0,   1.0f, 1.0f, 1.0f,
-      0,  0, br,   1.0f, 1.0f, 1.0f,
-      0, br,  0,   1.0f, 1.0f, 1.0f, // triangle 2
-    -br,  0,  0,   1.0f, 1.0f, 1.0f,
-      0,  0, br,   1.0f, 1.0f, 1.0f,
-    -br,  0,  0,   1.0f, 1.0f, 1.0f, // triangle 3
-      0,-br,  0,   1.0f, 1.0f, 1.0f,
-      0,  0, br,   1.0f, 1.0f, 1.0f,
-      0,-br,  0,   1.0f, 1.0f, 1.0f, // triangle 4
-     br,  0,  0,   1.0f, 1.0f, 1.0f,
-      0,  0, br,   1.0f, 1.0f, 1.0f,
-     br,  0,  0,   1.0f, 1.0f, 1.0f, // triangle 5
-      0,-br,  0,   1.0f, 1.0f, 1.0f,
-      0,  0,-br,   1.0f, 1.0f, 1.0f,
-      0,-br,  0,   1.0f, 1.0f, 1.0f, // triangle 6
-    -br,  0,  0,   1.0f, 1.0f, 1.0f,
-      0,  0,-br,   1.0f, 1.0f, 1.0f,
-    -br,  0,  0,   1.0f, 1.0f, 1.0f, // triangle 7
-      0, br,  0,   1.0f, 1.0f, 1.0f,
-      0,  0,-br,   1.0f, 1.0f, 1.0f,
-      0, br,  0,   1.0f, 1.0f, 1.0f, // triangle 8
-     br,  0,  0,   1.0f, 1.0f, 1.0f,
-      0,  0,-br,   1.0f, 1.0f, 1.0f,
+     br,  0,  0,   1.0f, 1.0f, 0.4f, // triangle 1
+      0, br,  0,   1.0f, 1.0f, 0.4f,
+      0,  0, br,   1.0f, 1.0f, 0.4f,
+      0, br,  0,   1.0f, 1.0f, 0.4f, // triangle 2
+    -br,  0,  0,   1.0f, 1.0f, 0.4f,
+      0,  0, br,   1.0f, 1.0f, 0.4f,
+    -br,  0,  0,   1.0f, 1.0f, 0.4f, // triangle 3
+      0,-br,  0,   1.0f, 1.0f, 0.4f,
+      0,  0, br,   1.0f, 1.0f, 0.4f,
+      0,-br,  0,   1.0f, 1.0f, 0.4f, // triangle 4
+     br,  0,  0,   1.0f, 1.0f, 0.4f,
+      0,  0, br,   1.0f, 1.0f, 0.4f,
+     br,  0,  0,   1.0f, 1.0f, 0.4f, // triangle 5
+      0,-br,  0,   1.0f, 1.0f, 0.4f,
+      0,  0,-br,   1.0f, 1.0f, 0.4f,
+      0,-br,  0,   1.0f, 1.0f, 0.4f, // triangle 6
+    -br,  0,  0,   1.0f, 1.0f, 0.4f,
+      0,  0,-br,   1.0f, 1.0f, 0.4f,
+    -br,  0,  0,   1.0f, 1.0f, 0.4f, // triangle 7
+      0, br,  0,   1.0f, 1.0f, 0.4f,
+      0,  0,-br,   1.0f, 1.0f, 0.4f,
+      0, br,  0,   1.0f, 1.0f, 0.4f, // triangle 8
+     br,  0,  0,   1.0f, 1.0f, 0.4f,
+      0,  0,-br,   1.0f, 1.0f, 0.4f,
+};
+float ball_2[] = {
+    // positions   // colors
+     br,  0,  0,   0.5f, 0.0f, 1.0f, // triangle 1
+      0, br,  0,   0.5f, 0.0f, 1.0f,
+      0,  0, br,   0.5f, 0.0f, 1.0f,
+      0, br,  0,   0.5f, 0.0f, 1.0f, // triangle 2
+    -br,  0,  0,   0.5f, 0.0f, 1.0f,
+      0,  0, br,   0.5f, 0.0f, 1.0f,
+    -br,  0,  0,   0.5f, 0.0f, 1.0f, // triangle 3
+      0,-br,  0,   0.5f, 0.0f, 1.0f,
+      0,  0, br,   0.5f, 0.0f, 1.0f,
+      0,-br,  0,   0.5f, 0.0f, 1.0f, // triangle 4
+     br,  0,  0,   0.5f, 0.0f, 1.0f,
+      0,  0, br,   0.5f, 0.0f, 1.0f,
+     br,  0,  0,   0.5f, 0.0f, 1.0f, // triangle 5
+      0,-br,  0,   0.5f, 0.0f, 1.0f,
+      0,  0,-br,   0.5f, 0.0f, 1.0f,
+      0,-br,  0,   0.5f, 0.0f, 1.0f, // triangle 6
+    -br,  0,  0,   0.5f, 0.0f, 1.0f,
+      0,  0,-br,   0.5f, 0.0f, 1.0f,
+    -br,  0,  0,   0.5f, 0.0f, 1.0f, // triangle 7
+      0, br,  0,   0.5f, 0.0f, 1.0f,
+      0,  0,-br,   0.5f, 0.0f, 1.0f,
+      0, br,  0,   0.5f, 0.0f, 1.0f, // triangle 8
+     br,  0,  0,   0.5f, 0.0f, 1.0f,
+      0,  0,-br,   0.5f, 0.0f, 1.0f,
 };
 float box[] = {
     // positions         // colors
@@ -171,6 +196,7 @@ class Renderer
 {
 private:
     GLFWwindow* window;
+
     GLuint shaderProgram;
     GLuint fragmentShader;
     GLuint vertexShader;
@@ -183,14 +209,16 @@ private:
     glm::mat4 model;
     glm::mat4 view;
 
-    glm::mat4* modelMatrices;
     GLuint VAO;
-    GLuint ballbuffer;
+    GLuint ballbuffer_1;
+    GLuint ballbuffer_2;
     GLuint boxbuffer;
 
+    glm::mat4 *modelMatrices_1, *modelMatrices_2;
+
     Timer timer;
-    FlockManager flock_manager;
-    std::vector<Boid*> boids_ptr;
+    FlockManager flock_manager_1, flock_manager_2;
+    std::vector<Boid*> boids_ptr_1, boids_ptr_2;
 
 public:
     Renderer() {};
@@ -198,8 +226,10 @@ public:
     void initialize()
     {
         timer.reset();
-        flock_manager.reset();
-        modelMatrices = new glm::mat4[BOID_NUMBER];
+        flock_manager_1.reset(BOID_NUMBER, NUM_LEADING_BOIDS, AVOIDANCE_SCALAR, CENTERING_SCALAR, VELOCITY_MATCHING_SCALAR);
+        flock_manager_2.reset(BOID_NUMBER, NUM_LEADING_BOIDS, 0.5 * AVOIDANCE_SCALAR, 1.2 * CENTERING_SCALAR, 1.2 * VELOCITY_MATCHING_SCALAR);
+        modelMatrices_1 = new glm::mat4[BOID_NUMBER - NUM_LEADING_BOIDS];
+        modelMatrices_2 = new glm::mat4[BOID_NUMBER - NUM_LEADING_BOIDS];
         update_position_from_manager();
 
         glfwInit();
@@ -258,9 +288,13 @@ public:
         glBindBuffer(GL_ARRAY_BUFFER, boxbuffer);
         glBufferData(GL_ARRAY_BUFFER, sizeof(box), box, GL_STATIC_DRAW);
 
-        glGenBuffers(1, &ballbuffer);
-        glBindBuffer(GL_ARRAY_BUFFER, ballbuffer);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(ball), ball, GL_STATIC_DRAW);
+        glGenBuffers(1, &ballbuffer_1);
+        glBindBuffer(GL_ARRAY_BUFFER, ballbuffer_1);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(ball_1), ball_1, GL_STATIC_DRAW);
+
+        glGenBuffers(1, &ballbuffer_2);
+        glBindBuffer(GL_ARRAY_BUFFER, ballbuffer_2);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(ball_2), ball_2, GL_STATIC_DRAW);
 
         // Declare model/view/projection matrices
         model = glm::mat4(1.0f);
@@ -289,9 +323,9 @@ public:
                 draw();
             }
 
-            flock_manager.compute_acceleration();
+            flock_manager_1.compute_acceleration();
+            flock_manager_2.compute_acceleration();
             timer.update_simulation_time();
-            // break;
 
         }
         delete_GLBuffers();
@@ -317,14 +351,27 @@ public:
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // render boids
-        glBindBuffer(GL_ARRAY_BUFFER, ballbuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, ballbuffer_1);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
         for(int i = 0; i < BOID_NUMBER; i++)
         {
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelMatrices[i]));
+            if(i < NUM_LEADING_BOIDS) continue;
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelMatrices_1[i - NUM_LEADING_BOIDS]));
+            glDrawArrays(GL_TRIANGLES, 0, 24);
+        }
+        // render boids_2
+        glBindBuffer(GL_ARRAY_BUFFER, ballbuffer_2);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+        for(int i = 0; i < BOID_NUMBER; i++)
+        {
+            if(i < NUM_LEADING_BOIDS) continue;
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelMatrices_2[i - NUM_LEADING_BOIDS]));
             glDrawArrays(GL_TRIANGLES, 0, 24);
         }
         
@@ -334,13 +381,23 @@ public:
 
     void update_position_from_manager()
     {
-        boids_ptr = flock_manager.get_boids();
+        boids_ptr_1 = flock_manager_1.get_boids();
+        boids_ptr_2 = flock_manager_2.get_boids();
 
         for(int i = 0; i < BOID_NUMBER; i++)
         {
+            if(i < NUM_LEADING_BOIDS) continue;
             model = glm::mat4(1.0f);
-            model = glm::translate(model, transform_phy2gl(boids_ptr[i]->position[0]));
-            modelMatrices[i] = model;
+            model = glm::translate(model, transform_phy2gl(boids_ptr_1[i]->position[0]));
+            modelMatrices_1[i - NUM_LEADING_BOIDS] = model;
+        }
+
+        for(int i = 0; i < BOID_NUMBER; i++)
+        {
+            if(i < NUM_LEADING_BOIDS) continue;
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, transform_phy2gl(boids_ptr_2[i]->position[0]));
+            modelMatrices_2[i - NUM_LEADING_BOIDS] = model;
         }
     }
 
@@ -348,7 +405,8 @@ public:
     {
         glDeleteVertexArrays(1, &VAO);
         glDeleteBuffers(1, &boxbuffer);
-        glDeleteBuffers(1, &ballbuffer);
+        glDeleteBuffers(1, &ballbuffer_1);
+        glDeleteBuffers(1, &ballbuffer_2);
         glDeleteProgram(shaderProgram);
     }
 

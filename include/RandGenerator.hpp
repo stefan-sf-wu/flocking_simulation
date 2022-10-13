@@ -55,7 +55,7 @@ public:
         return mean + std_deviation * random_num_vec_.at(get_offset());
     }
 
-    glm::vec3 generate_random_uniform_vec(float u_min, float u_max)
+    glm::vec3 generate_random_uniform_vec3(float u_min, float u_max)
     {
         return {
             generate_uniform(u_min, u_max),
@@ -64,12 +64,24 @@ public:
         };
     }
 
-    glm::vec3 generate_random_gaussian_vec(float std_deviation, float mean) 
+    glm::vec3 generate_random_gaussian_vec3(float std_deviation, float mean) 
     {
         return {
             generate_gaussian(std_deviation, mean),
             generate_gaussian(std_deviation, mean),
             generate_gaussian(std_deviation, mean),
+        };
+    }
+
+    glm::vec3 generate_random_direction_vec(int scalar = 1) 
+    {
+        float theta  = generate_uniform(-M_PI, M_PI);
+        float y      = generate_uniform(-1, 1);
+
+        return {
+            scalar * std::cos(theta),
+            y,
+            scalar * -std::sin(theta)
         };
     }
 

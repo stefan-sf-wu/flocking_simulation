@@ -4,21 +4,21 @@
 #include <vector>
 
 #include <omp.h>
-
 #include <glm/glm.hpp>
 #include <glm/geometric.hpp>    // Geometric functions
 
 #include "Common.hpp"
 #include "RandGenerator.hpp"
+#include "AccelerationOperators.hpp"
 
 #if ENABLE_LOGGER
 #include <iostream>
 #endif
 
-float d_a = (EDGE_SIZE * 1 / 4);
-float d_b = (EDGE_SIZE * 3 / 4);
+float d_a = (EDGE_SIZE * 1 / 6);
+float d_b = (EDGE_SIZE * 1 / 4);
 float theta_a = (M_PI * 90 / 360);
-float theta_b = (M_PI * 220 / 360);
+float theta_b = (M_PI * 240 / 360);
 
 struct Boid
 {   
@@ -81,6 +81,8 @@ private:
         return (theta_b - theta) / (theta_b - theta_a);
     }
 
+    
+
 public:
     FlockManager()
     {
@@ -93,8 +95,8 @@ public:
         for(int i = 0; i < BOID_NUMBER; i++)
         {
             boids_.push_back(new Boid());
-            boids_[i]->position[0] = rand_generator.generate_random_vec(0, EDGE_SIZE);
-            boids_[i]->velocity[0] = rand_generator.generate_random_vec(0, EDGE_SIZE);
+            boids_[i]->position[0] = rand_generator.generate_random_uniform_vec(0, EDGE_SIZE);
+            boids_[i]->velocity[0] = rand_generator.generate_random_gaussian_vec(10, 10);
         }
     }
 
@@ -107,6 +109,7 @@ public:
         float dist_dir_weight;
 
         glm::vec3 acc_steering;
+        glm::vec3 acc_repeller;
 
         glm::vec3 acc_avoidance;
         glm::vec3 acc_velocity_matching;
@@ -126,47 +129,33 @@ public:
              * 2. POTENTIAL FIELDS
              * 3. ATTRACTORS / REPELLORS
             */ 
+
+            acc_repeller = compute_bb_repel(boids_[i]->position[0]);
+
             acc_avoidance = acc_velocity_matching = acc_centering = {0, 0, 0};
 
-            #pragma omp parallel for\
-                default(none)\
-                shared(i, boids_, acc_avoidance, acc_velocity_matching, acc_centering)\
-                private(j, dist_ij, vec_ij, unit_vec_ij, dist_dir_weight, my_acc_avoidance, my_acc_velocity_matching, my_acc_centering)
+            // #pragma omp parallel for\
+            //     default(none)\
+            //     shared(i, boids_, acc_avoidance, acc_velocity_matching, acc_centering)\
+            //     private(j, dist_ij, vec_ij, unit_vec_ij, dist_dir_weight, my_acc_avoidance, my_acc_velocity_matching, my_acc_centering)
             for(j = 0; j < BOID_NUMBER; j++)
             {
                 if(i == j) continue;
-                /**
-                 * TODO: add contribution of particle j to i's total force
-                */
-                // std::cout << "boids_[i]->position[0]"; print_vec(boids_[i]->position[0]);
-                // std::cout << "boids_[j]->position[0]"; print_vec(boids_[j]->position[0]);
 
                 dist_ij     = glm::distance(boids_[i]->position[0], boids_[j]->position[0]);
                 vec_ij      = (boids_[j]->position[0] - boids_[i]->position[0]);
                 unit_vec_ij = vec_ij / dist_ij;
 
-                // std::cout << "dist_ij: "<<dist_ij<< std::endl;
-                // std::cout << "vec_ij: ";    print_vec(vec_ij);
-                // std::cout << "unit_vec_ij: "; print_vec(vec_ij);
-
-
                 dist_dir_weight = compute_direction_weight(boids_[i]->velocity[0], unit_vec_ij) * compute_distance_weight(dist_ij);
-                // std::cout << "dir_weight: " <<  compute_direction_weight(boids_[i]->velocity[0], unit_vec_ij) << std::endl;
-                // std::cout << "dist_weight: " << compute_distance_weight(dist_ij)<<std::endl;
 
                 my_acc_avoidance = dist_dir_weight * compute_aviodance(dist_ij, unit_vec_ij);
                 my_acc_centering = dist_dir_weight * compute_centering(dist_ij, unit_vec_ij);
                 my_acc_velocity_matching = dist_dir_weight * compute_velocity_matching(boids_[i]->velocity[0], boids_[j]->velocity[0]);
 
-                // std::cout << "avoidance/centering/velmatching\n";
-                // print_vec(compute_aviodance(dist_ij, unit_vec_ij));
-                // print_vec(compute_centering(dist_ij, unit_vec_ij));
-                // print_vec(compute_velocity_matching(boids_[i]->velocity[0], boids_[j]->velocity[0]));
-                
                 for(int k = 0; k < 3; k++)
                 {
                     #pragma omp atomic update
-                    acc_centering[k] += my_acc_centering[k];
+                    acc_centering[k] += my_acc_centering[k];                  
                     #pragma omp atomic update
                     acc_avoidance[k] += my_acc_avoidance[k];
                     #pragma omp atomic update
@@ -177,8 +166,20 @@ public:
             /**
              * TODO: integrate all of the forces on i: prioritize accelerations
             */
+        //    std::cout << "acc_aoivdance";
+        //    print_vec(acc_avoidance);
+        //    std::cout << "acc_centering";
+        //    print_vec(acc_centering);
+        //    std::cout << "acc_v_matching";
+        //    print_vec(acc_velocity_matching);
+        //    std::cout << "acc_flocking_all";
+        //    print_vec(acc_avoidance+acc_centering + acc_velocity_matching);
+        //    std::cout << std::endl;
 
-            boids_[i]->velocity[1] = boids_[i]->velocity[0] + (float)TIMESTEP * (acc_avoidance + acc_centering + acc_velocity_matching);
+            // boids_[i]->velocity[1] = boids_[i]->velocity[0] + (float)TIMESTEP * (acc_repeller);
+            boids_[i]->velocity[1] = boids_[i]->velocity[0] + (float)TIMESTEP * (acc_repeller + acc_avoidance + acc_centering + acc_velocity_matching);
+            boids_[i]->velocity[1] *= (k_cruising_velocity_limit / glm::length(boids_[i]->velocity[1]));
+            
             boids_[i]->position[1] = boids_[i]->position[0] + (float)TIMESTEP * boids_[i]->velocity[0];
         }
 

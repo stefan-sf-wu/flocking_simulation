@@ -25,7 +25,7 @@ const char* vertexShaderSource = "#version 330 core\n"
 "out vec3 ourColor;\n"
 "void main()\n"
 "{\n"
-"   gl_Position = projection * view * model * vec4(aPos, 0.5);\n"
+"   gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
 "   ourColor = aColor;\n"
 "}\0";
 
@@ -34,14 +34,14 @@ const char* fragmentShaderSource = "#version 330 core\n"
 "in vec3 ourColor;\n"
 "void main()\n"
 "{\n"
-"   FragColor = vec4(ourColor, 1.0f);\n"
+"   FragColor = vec4(ourColor, 0.3f);\n"
 "}\n\0";
 
 
 // View parameters
 float theta = 0.0;
 float phi = 0.0;
-float camradius = 10.0;
+float camradius = 5.0;
 float cameraspeed = 0.5;
 
 float camX = camradius;
@@ -291,6 +291,8 @@ public:
 
             flock_manager.compute_acceleration();
             timer.update_simulation_time();
+            // break;
+
         }
         delete_GLBuffers();
         glfwTerminate();

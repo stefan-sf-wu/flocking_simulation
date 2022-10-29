@@ -43,9 +43,6 @@ glm::vec3 compute_vortex_velocity(Boid *boid, float tao = 4)
     float       r           = glm::length(vec_r);
     glm::vec3   vec_acc     = -vec_r;
 
-    // if(r > k_vortex_radius) return {0, 0, 0};
-    // if(l > k_vortex_height) return {0, 0, 0};
-
     float       fq          = std::pow((k_vortex_radius / r), tao) * k_vortex_fq;
     fq                      = std::min(k_fq_max, fq);
     float omega = 2 * M_PI * fq;
@@ -77,17 +74,6 @@ glm::vec3 compute_vortex_velocity(Boid *boid, float tao = 4)
 
     glm::mat4 ret = glm::inverse(T) * glm::inverse(R) * R_theta * R * T;
 
-    // for(int i =0; i <4;i++)
-    // {
-    //     for(int j=0;j<4; j++)
-    //     {
-    //         std::cout << ret[i][j]<<' ';
-    //     }
-    //     std::cout <<std::endl;
-    // }
-    // std::cout << std::endl;
-
-    // return {ret[0][0], ret[1][1], ret[2][2]};
     return {ret[0][3], ret[1][3], ret[2][3]};
 }
 
@@ -186,15 +172,6 @@ glm::vec3 compute_flocking_acc(
             #pragma omp atomic update
             acc_velocity_matching[k] += my_acc_velocity_matching[k]; 
         }
-        //    std::cout << "acc_aoivdance";
-        //    print_vec(acc_avoidance);
-        //    std::cout << "acc_centering";
-        //    print_vec(acc_centering);
-        //    std::cout << "acc_v_matching";
-        //    print_vec(acc_velocity_matching);
-        //    std::cout << "acc_flocking_all";
-        //    print_vec(acc_avoidance+acc_centering + acc_velocity_matching);
-        //    std::cout << std::endl;
     }
 
     return acc_avoidance + acc_centering + acc_velocity_matching;
